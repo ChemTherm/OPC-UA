@@ -16,6 +16,14 @@ try:
     node = client.get_node(node_id)
     value = node.get_value()
     print(f"Value of '{node_id}': {value}")
+
+    # Write a value to the node
+    new_value = True  # Boolean value
+    node.set_value(new_value)  # For simple types, directly pass the value
+
+    # Alternatively, use the DataValue class for more control
+    # data_value = ua.DataValue(ua.Variant(new_value, ua.VariantType.Boolean))
+    # node.set_value(data_value)
     exit()
     root = client.get_root_node()
     print(f"Root node is: {root}")
