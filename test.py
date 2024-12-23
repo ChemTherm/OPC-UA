@@ -22,13 +22,48 @@ print(f"{certificate_path.exists()}  {certificate_path.exists()}")
 client = Client("opc.tcp://192.168.2.37:48020")
 
 
-try:
-    client.connect()
-except Exception as err:
-    exit(err)
-
 node_id = "ns=4;s=Root.TestFolder.TestBool"
 plc_root_node = "ns=4;s=Root"
+
+
+def get_node(node_name):
+    return client.get_node(node_name)
+
+
+def set_node(node, value, data_type):
+    data_value = ua.DataValue(ua.Variant(value, data_type))
+    node.set_value(data_value)
+
+
+def main():
+    try:
+        client.connect()
+        node = get_node(plc_root_node)
+        bool_node = get_node(node_id)
+        print(bool_node.get_value())
+        set_node(bool_node, False, ua.VariantType.Boolean)
+        print(get_node(node_id).get_value())
+        browse_node(node)
+    finally:
+        client.disconnect()
+
+
+def browse_node(node, depth=0):
+    indent = "  " * depth
+    try:
+        print(f"{indent}- Node: {node}, Display Name: {node.get_display_name().Text}")
+        for child in node.get_children():
+            browse_node(child, depth + 1)
+    except Exception as e:
+        print(f"{indent}Error browsing node: {e}")
+
+
+main()
+exit()
+
+"""
+
+
 
 try:
     # Get the root node
@@ -37,20 +72,10 @@ try:
     print(f"Value of '{node_id}': {value}")
 
     # Write a value to the node
-    new_value = True  # Boolean value
-    node.set_value(new_value)  # For simple types, directly pass the value
 
-    # Alternatively, use the DataValue class for more control
-    # data_value = ua.DataValue(ua.Variant(new_value, ua.VariantType.Boolean))
-    # node.set_value(data_value)
-    exit()
     root = client.get_root_node()
     print(f"Root node is: {root}")
 
-    # Read a variable value (e.g., "Temperature")
-    temp_node = client.get_node("ns=2;s=MyDevice.Temperature")
-    temperature = temp_node.get_value()
-    print(f"Temperature: {temperature}")
 
 finally:
     client.disconnect()
@@ -71,16 +96,6 @@ try:
         print(f"Object: {obj}, Display Name: {obj.get_display_name().Text}")
 finally:
     client.disconnect()
-
-
-def browse_node(node, depth=0):
-    indent = "  " * depth
-    try:
-        print(f"{indent}- Node: {node}, Display Name: {node.get_display_name().Text}")
-        for child in node.get_children():
-            browse_node(child, depth + 1)
-    except Exception as e:
-        print(f"{indent}Error browsing node: {e}")
 
 # Connect and browse from the root
 try:
@@ -115,3 +130,5 @@ finally:
 exit()
 
 
+
+"""
