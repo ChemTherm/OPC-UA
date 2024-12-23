@@ -1,15 +1,34 @@
 from opcua import Client
+from opcua import ua
 
-# Connect to the OPC-UA server
-# client = Client("opc.tcp://127.0.0.1:48020")
+
+''' 
+# Encryption related and not used for now 
+
+import os
+from pathlib import Path
+
+cwd = Path(os.getcwd())
+certificate_path = cwd.joinpath("cert.der")
+private_key_path = cwd.joinpath("private_key.pem")
+print(f"{certificate_path.exists()}  {certificate_path.exists()}")
+
+# when not using exncryption leave this out: client.set_security_string("None")
+# client.set_security_string(f"Basic256Sha256,SignAndEncrypt,{certificate_path},{private_key_path}")
+# not needed either iirc
+# client.set_password("Password")
+'''
+
 client = Client("opc.tcp://192.168.2.37:48020")
-# client.set_password("ChemTherm2024!")
+
+
 try:
     client.connect()
 except Exception as err:
     exit(err)
 
 node_id = "ns=4;s=Root.TestFolder.TestBool"
+plc_root_node = "ns=4;s=Root"
 
 try:
     # Get the root node
@@ -71,8 +90,6 @@ try:
     browse_node(root)
 finally:
     client.disconnect()
-
-from opcua import ua
 
 def browse_variables(node, depth=0):
     indent = "  " * depth
